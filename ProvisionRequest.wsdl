@@ -1,0 +1,571 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="GroupBService" targetNamespace="http://soapinterop.org/" 
+    xmlns="http://schemas.xmlsoap.org/wsdl/" 
+    xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" 
+    xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" 
+    xmlns:tns="http://soapinterop.org/" 
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+    xmlns:xsd1="http://soapinterop.org/xsd"
+    xmlns:aspen="http://www.iona.com/aspen"
+    >
+
+    <types>
+        <schema targetNamespace="http://soapinterop.org/xsd" 
+            xmlns="http://www.w3.org/2001/XMLSchema" 
+            xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+
+
+            <complexType name="subscriptionInfoPart">
+                <all>
+                    <element name="subscriptionId" type="xsd:string"/>
+                    <element name="subscriberType" type="xsd:string"/>
+                    <element name="namePrefix" type="xsd:string"/>
+                    <element name="firstName" type="xsd:string"/>
+                    <element name="middleName" type="xsd:string"/>
+                    <element name="lastName" type="xsd:string"/>
+                    <element name="nameSuffix" type="xsd:string"/>
+                    <element name="streetName" type="xsd:string"/>
+                    <element name="cityName" type="xsd:string"/>
+                    <element name="state" type="xsd:string"/>
+                    <element name="zipCode" type="xsd:string"/>
+                    <element name="dateOfBirth" type="xsd:string"/>
+                    <element name="emailAddress" type="xsd:string"/>
+                    <element name="businessName" type="xsd:string"/>
+                    <element name="homePageId" type="xsd:string"/>
+                    <element name="CSA" type="xsd:string"/>
+                    <element name="BAN" type="xsd:string"/>
+                    <element name="accountNumber" type="xsd:string"/>
+                    <element name="subAccountNumber" type="xsd:string"/>
+                </all>
+            </complexType>
+
+            <complexType name="EHeader">
+                <all>
+                    <element name="actionCode" type="xsd:string"/>
+                    <element name="mobileIdNum" type="xsd:string"/>
+                    <element name="workItemId" type="xsd:string"/>
+                    <element name="originatingSystem" type="xsd:string"/>
+                    <element name="DN" type="xsd:string"/>
+                    <element name="newDN" type="xsd:string"/>
+                    <element name="newMIN" type="xsd:string"/>
+                    <element name="ESN" type="xsd:string"/>
+                    <element name="taskModelName" type="xsd:string"/>
+                    <element name="NAI" type="xsd:string"/>
+                    <element name="newNAI" type="xsd:string"/>
+
+                    <element name="subscriptionInfoPart" type="xsd1:subscriptionInfoPart"/>
+                </all>
+            </complexType>
+
+
+            <complexType name="hlrPart">
+                <all>
+                    <element name="HLR_ActionCode" type="xsd:string"/>
+                    <element name="HSA" type="xsd:string"/>
+                    <element name="CD_OutsHSA_Auth" type="xsd:string"/>
+                    <element name="CD_OutsHSA_Act" type="xsd:string"/>
+                    <element name="PIC" type="xsd:string"/>
+                    <element name="HSA_OrgInd" type="xsd:string"/>
+                    <element name="nonHSA_OrgInd" type="xsd:string"/>
+                    <element name="orgRestDigs" type="xsd:string"/>
+                    <element name="termRestInd" type="xsd:string"/>
+                    <element name="CCF_BsyAuth" type="xsd:string"/>
+                    <element name="CCF_BsyAct" type="xsd:string"/>
+                    <element name="CCF_BsyDestDigs" type="xsd:string"/>
+                    <element name="CCF_BsyPIC" type="xsd:string"/>
+                    <element name="CCF_BsyIDDD" type="xsd:string"/>
+                    <element name="CCF_NA_Auth" type="xsd:string"/>
+                    <element name="CCF_NA_Act" type="xsd:string"/>
+                    <element name="CCF_NA_DestDigs" type="xsd:string"/>
+                    <element name="CCF_NA_PIC" type="xsd:string"/>
+                    <element name="CCF_NA_IDDD" type="xsd:string"/>
+                    <element name="CCF_DefAuth" type="xsd:string"/>
+                    <element name="CCF_DefAct" type="xsd:string"/>
+                    <element name="CCF_DefDestDigs" type="xsd:string"/>
+                    <element name="CCF_DefPIC" type="xsd:string"/>
+                    <element name="CCF_DefIDDD" type="xsd:string"/>
+                    <element name="CFU_Auth" type="xsd:string"/>
+                    <element name="CFU_Act" type="xsd:string"/>
+                    <element name="CFU_DestDigits" type="xsd:string"/>
+                    <element name="CFU_PIC" type="xsd:string"/>
+                    <element name="CFU_IDDD" type="xsd:string"/>
+                    <element name="CFU_AbbrAlrt" type="xsd:string"/>
+                    <element name="CFU_SubUpd" type="xsd:string"/>
+                    <element name="CCF_SubUpd" type="xsd:string"/>
+                    <element name="CNIP_Auth" type="xsd:string"/>
+                    <element name="CNIR_Auth" type="xsd:string"/>
+                    <element name="callWtngAuth" type="xsd:string"/>
+                    <element name="callWtngAct" type="xsd:string"/>
+                    <element name="threeWayCallingAuth" type="xsd:string"/>
+                    <element name="threeWayCallingAct" type="xsd:string"/>
+                    <element name="doNotDistAuth" type="xsd:string"/>
+                    <element name="doNotDistAct" type="xsd:string"/>
+                    <element name="MWI_Act" type="xsd:string"/>
+                    <element name="HSA_RoamOnly" type="xsd:string"/>
+                    <element name="prioNumAuth" type="xsd:string"/>
+                    <element name="prioNumAct" type="xsd:string"/>
+                    <element name="prioNumDN" type="xsd:string"/>
+                    <element name="ARL_ActiveInd" type="xsd:string"/>
+                    <element name="ARL_PosIndex" type="xsd:string"/>
+                    <element name="ARL_NegIndex" type="xsd:string"/>
+                    <element name="frequencyType" type="xsd:string"/>
+                    <element name="threeG_CapableIP" type="xsd:string"/>
+                    <element name="threeG_DataAssured" type="xsd:string"/>
+                    <element name="threeG_DataNonAssured" type="xsd:string"/>
+                    <element name="WINSERVICENAME" type="xsd:string"/>
+                    <element name="WINSERVICEACTION" type="xsd:string"/>
+                </all>
+            </complexType>
+
+            <complexType name="vmsPart">
+                <all>
+                    <element name="VMS_ActionCode" type="xsd:string"/>
+                    <element name="VMS_ServiceClassName" type="xsd:string"/>
+                    <element name="oldVMS_ServiceClassName" type="xsd:string"/>
+                    <element name="phoneNumber1" type="xsd:string"/>
+                    <element name="phoneNumber2" type="xsd:string"/>
+                </all>
+            </complexType>
+
+            <complexType name="SM_ServicePart">
+                <all>
+                    <element name="SM_ServiceActionCode" type="xsd:string"/>
+                    <element name="SM_ServiceClassName" type="xsd:string"/>
+                    <element name="frequencyType" type="xsd:string"/>
+                    <element name="modelNumber" type="xsd:string"/>
+                    <element name="factoryKeyRevision" type="xsd:string"/>
+                    <element name="SM_EscalationPagingProvided" type="xsd:string"/>
+                    <element name="SM_PagerServiceProvider" type="xsd:string"/>
+                    <element name="SM_PagerType" type="xsd:string"/>
+                    <element name="SM_PagerAccessNumber" type="xsd:string"/>
+                    <element name="SM_PersonalIdNumber" type="xsd:string"/>
+                </all>
+            </complexType>
+
+            <complexType name="acPart">
+                <all>
+                    <element name="AC_ActionCode" type="xsd:string"/>
+                    <element name="A_Key" type="xsd:string"/>
+                    <element name="authAct" type="xsd:string"/>
+                    <element name="authFailOverride" type="xsd:string"/>
+                    <element name="authAutoSSD_Upd" type="xsd:string"/>
+                </all>
+            </complexType>
+
+            <complexType name="ASMS_Part">
+                <all>
+                    <element name="ASMS_ActionCode" type="xsd:string"/>
+                    <element name="SUBID" type="xsd:string"/>
+                    <element name="NATLACCTID" type="xsd:string"/>
+                    <element name="WINSERVICENAME" type="xsd:string"/>
+                    <element name="PHONENUMBER" type="xsd:string"/>
+                    <element name="NEWSUBID" type="xsd:string"/>
+                    <element name="OLDMIN" type="xsd:string"/>
+                    <element name="DIALPLANNAME" type="xsd:string"/>
+                </all>
+            </complexType>
+
+            <complexType name="AN_Part">
+                <all>
+                    <element name="AN_ActionCode" type="xsd:string"/>
+                    <element name="AN_Product" type="xsd:string"/>
+                </all>
+            </complexType>
+
+            <complexType name="AAA_Part">
+                <all>
+                    <element name="AAA_ActionCode" type="xsd:string"/>
+                    <element name="NAI" type="xsd:string"/>
+                    <element name="newNAI" type="xsd:string"/>
+                    <element name="BAN" type="xsd:string"/>
+                    <element name="password" type="xsd:string"/>
+                    <element name="serviceProfileName" type="xsd:string"/>
+                    <element name="hotlineOnOffInd" type="xsd:string"/>
+                    <element name="certID" type="xsd:string"/>
+                    <element name="hotlineReason" type="xsd:string"/>
+                    <element name="NAID" type="xsd:string"/>
+                    <element name="deviceManufacturer" type="xsd:string"/>
+                    <element name="deviceModel" type="xsd:string"/>
+                    <element name="A_Key" type="xsd:string"/>
+                    <element name="subsidyLock" type="xsd:string"/>
+                    <element name="pushToTalk" type="xsd:string"/>
+                </all>
+            </complexType>
+
+            <complexType name="VCS_VoiceDialPart">
+                <all>
+                    <element name="VCS_VoiceDialActionCode" type="xsd:string"/>
+                    <element name="effectiveDate" type="xsd:string"/>
+                    <element name="HSA_OrgInd" type="xsd:string"/>
+                    <element name="oldSubscriptionId" type="xsd:string"/>
+                </all>
+            </complexType>
+
+
+            <complexType name="DataSvcsBasicPart">
+                <all>
+                    <element name="dataSvcsBasicActionCode" type="xsd:string"/>
+                    <element name="deviceManufacturer" type="xsd:string"/>
+                    <element name="deviceModel" type="xsd:string"/>
+                    <element name="downloadCapableInd" type="xsd:string"/>
+                </all>
+            </complexType>
+
+            <complexType name="DataSvcsEnhancedPart">
+                <all>
+                    <element name="dataSvcsEnhancedActionCode" type="xsd:string"/>
+                </all>
+            </complexType>
+
+
+            <complexType name="EProvisioningRecord">
+                <all>
+                    <element name="hlrPart" type="xsd1:hlrPart"/>
+                    <element name="vmsPart" type="xsd1:vmsPart"/>
+                    <element name="SM_ServicePart" type="xsd1:SM_ServicePart"/>
+                    <element name="acPart" type="xsd1:acPart"/>
+                    <element name="ASMS_Part" type="xsd1:ASMS_Part"/>
+                    <element name="AN_Part" type="xsd1:AN_Part"/>
+                    <element name="AAA_Part" type="xsd1:AAA_Part"/>
+                    <element name="VCS_VoiceDialPart" type="xsd1:VCS_VoiceDialPart"/>
+	                <element name="DataSvcsBasicPart" type="xsd1:DataSvcsBasicPart"/>
+                    <element name="DataSvcsEnhancedPart" type="xsd1:DataSvcsEnhancedPart"/>
+                </all>
+            </complexType>
+
+
+            <complexType name="ShortMessageTextPart">
+                <all>
+                    <element name="SM_MessageActionCode" type="xsd:string"/>
+                    <element name="messageText" type="xsd:string"/>
+                </all>
+            </complexType>
+
+            <complexType name="ASL_EHeader">
+                <all>
+                    <element name="actionCode" type="xsd:string"/>
+                    <element name="mobileIdNum" type="xsd:string"/>
+                    <element name="workItemId" type="xsd:string"/>
+                    <element name="originatingSystem" type="xsd:string"/>
+                    <element name="DN" type="xsd:string"/>
+                </all>
+            </complexType>
+
+            <complexType name="ASL_EProvisioningRecord">
+                <all>
+                    <element name="ShortMessageTextPart" type="xsd1:ShortMessageTextPart"/>
+                </all>
+            </complexType>
+
+            <complexType name="ASLRequest">
+                <all>
+                    <element name="EHeader" type="xsd1:ASL_EHeader"/>
+                    <element name="EProvisioningRecord" type="xsd1:ASL_EProvisioningRecord"/>
+                </all>
+            </complexType>
+
+            <complexType name="ProvisioningRequest">
+                <all>
+                    <element name="EHeader" type="xsd1:EHeader"/>
+                    <element name="EProvisioningRecord" type="xsd1:EProvisioningRecord"/>
+                </all>
+            </complexType>
+			
+
+            <complexType name="ACTIVIEW_Reply">
+                <all>
+                    <element name="returnCode" type="xsd:string"/>
+                    <element name="workItemId" type="xsd:string"/>
+                    <element name="mobileIdNum" type="xsd:string"/>
+                    <element name="sessionId" type="xsd:string"/>
+                    <element name="PRL_Name" type="xsd:string"/>
+                    <element name="DN" type="xsd:string"/>
+                    <element name="NAI" type="xsd:string"/>
+                    <element name="errorMsg" type="xsd:string"/>
+                </all>
+            </complexType>
+
+        </schema>
+    </types>
+
+    <message name="doProvisioning">
+        <part name="Request" type="xsd1:ProvisioningRequest"/>
+    </message>
+
+    <message name="doText">
+        <part name="Request" type="xsd1:ASLRequest"/>
+    </message>
+
+    <message name="Response">
+        <part name="Response" type="xsd1:ACTIVIEW_Reply"/>
+    </message>
+
+
+    <portType name="ProvisionRequestPortType">
+        <operation name="doProvisioning">
+            <input message="tns:doProvisioning" name="doProvisioning"/>
+            <output message="tns:Response" name="Response"/>
+        </operation>
+
+        <operation name="doText">
+            <input message="tns:doText" name="doText"/>
+            <output message="tns:Response" name="Response"/>
+        </operation>
+    </portType>
+
+
+    <binding name="ProvisioningBinding" type="tns:ProvisionRequestPortType">
+        <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+		<aspen:binding transport="tuxedo" format="g2++" container="tuxedo">
+			<G2Definitions>
+				<G2Config>
+					<Logger filename="g2-log" level="debug"/>
+					<IgnoreUnknownElements value="true"/>
+				</G2Config>
+				<G2MessageDescription name="provisioning" type="msg">
+					<G2MessageComponent name="EHeader" type="struct">
+						<element name="actionCode" type="element"/>
+						<element name="mobileIdNum" type="element"/>
+						<element name="workItemId" type="element"/>
+						<element name="originatingSystem" type="element"/>
+						<element name="DN" type="element"/>
+						<element name="newDN" type="element"/>
+						<element name="newMIN" type="element"/>
+						<element name="ESN" type="element"/>
+						<element name="taskModelName" type="element"/>
+						<element name="NAI" type="element"/>
+						<element name="newNAI" type="element"/>
+				
+						<G2MessageComponent name="subscriptionInfoPart" type="struct">
+							<element name="subscriptionId" type="element"/>
+							<element name="subscriberType" type="element"/>
+							<element name="namePrefix" type="element"/>
+							<element name="firstName" type="element"/>
+							<element name="middleName" type="element"/>
+							<element name="lastName" type="element"/>
+							<element name="nameSuffix" type="element"/>
+							<element name="streetName" type="element"/>
+							<element name="cityName" type="element"/>
+							<element name="state" type="element"/>
+							<element name="zipCode" type="element"/>
+							<element name="dateOfBirth" type="element"/>
+							<element name="emailAddress" type="element"/>
+							<element name="businessName" type="element"/>
+							<element name="homePageId" type="element"/>
+							<element name="CSA" type="element"/>
+							<element name="BAN" type="element"/>
+							<element name="accountNumber" type="element"/>
+							<element name="subAccountNumber" type="element"/>
+						</G2MessageComponent>
+					</G2MessageComponent>
+					<G2MessageComponent name="EProvisioningRecord" type="struct">
+						<G2MessageComponent name="hlrPart" type="struct">
+							<element name="HLR_ActionCode" type="element"/>
+							<element name="HSA" type="element"/>
+							<element name="CD_OutsHSA_Auth" type="element"/>
+							<element name="CD_OutsHSA_Act" type="element"/>
+							<element name="PIC" type="element"/>
+							<element name="HSA_OrgInd" type="element"/>
+							<element name="nonHSA_OrgInd" type="element"/>
+							<element name="orgRestDigs" type="element"/>
+							<element name="termRestInd" type="element"/>
+							<element name="CCF_BsyAuth" type="element"/>
+							<element name="CCF_BsyAct" type="element"/>
+							<element name="CCF_BsyDestDigs" type="element"/>
+							<element name="CCF_BsyPIC" type="element"/>
+							<element name="CCF_BsyIDDD" type="element"/>
+							<element name="CCF_NA_Auth" type="element"/>
+							<element name="CCF_NA_Act" type="element"/>
+							<element name="CCF_NA_DestDigs" type="element"/>
+							<element name="CCF_NA_PIC" type="element"/>
+							<element name="CCF_NA_IDDD" type="element"/>
+							<element name="CCF_DefAuth" type="element"/>
+							<element name="CCF_DefAct" type="element"/>
+							<element name="CCF_DefDestDigs" type="element"/>
+							<element name="CCF_DefPIC" type="element"/>
+							<element name="CCF_DefIDDD" type="element"/>
+							<element name="CFU_Auth" type="element"/>
+							<element name="CFU_Act" type="element"/>
+							<element name="CFU_DestDigits" type="element"/>
+							<element name="CFU_PIC" type="element"/>
+							<element name="CFU_IDDD" type="element"/>
+							<element name="CFU_AbbrAlrt" type="element"/>
+							<element name="CFU_SubUpd" type="element"/>
+							<element name="CCF_SubUpd" type="element"/>
+							<element name="CNIP_Auth" type="element"/>
+							<element name="CNIR_Auth" type="element"/>
+							<element name="callWtngAuth" type="element"/>
+							<element name="callWtngAct" type="element"/>
+							<element name="threeWayCallingAuth" type="element"/>
+							<element name="threeWayCallingAct" type="element"/>
+							<element name="doNotDistAuth" type="element"/>
+							<element name="doNotDistAct" type="element"/>
+							<element name="MWI_Act" type="element"/>
+							<element name="HSA_RoamOnly" type="element"/>
+							<element name="prioNumAuth" type="element"/>
+							<element name="prioNumAct" type="element"/>
+							<element name="prioNumDN" type="element"/>
+							<element name="ARL_ActiveInd" type="element"/>
+							<element name="ARL_PosIndex" type="element"/>
+							<element name="ARL_NegIndex" type="element"/>
+							<element name="frequencyType" type="element"/>
+							<element name="threeG_CapableIP" type="element"/>
+							<element name="threeG_DataAssured" type="element"/>
+							<element name="threeG_DataNonAssured" type="element"/>
+								<G2MessageComponent name="HLR_MetaData" type="array" size="2">
+									<element name="WINSERVICENAME" type="array_element"/>
+									<element name="WINSERVICEACTION" type="array_element"/>
+								</G2MessageComponent>
+							</G2MessageComponent>
+
+						<G2MessageComponent name="vmsPart" type="struct">
+							<element name="VMS_ActionCode" type="element"/>
+							<element name="VMS_ServiceClassName" type="element"/>
+							<element name="oldVMS_ServiceClassName" type="element"/>
+							<element name="phoneNumber1" type="element"/>
+							<element name="phoneNumber2" type="element"/>
+						</G2MessageComponent>
+						<G2MessageComponent name="SM_ServicePart" type="struct">
+							<element name="SM_ServiceActionCode" type="element"/>
+							<element name="SM_ServiceClassName" type="element"/>
+							<element name="frequencyType" type="element"/>
+							<element name="modelNumber" type="element"/>
+							<element name="factoryKeyRevision" type="element"/>
+							<element name="SM_EscalationPagingProvided" type="element"/>
+							<element name="SM_PagerServiceProvider" type="element"/>
+							<element name="SM_PagerType" type="element"/>
+							<element name="SM_PagerAccessNumber" type="element"/>
+							<element name="SM_PersonalIdNumber" type="element"/>
+						</G2MessageComponent>
+
+						<G2MessageComponent name="acPart" type="struct">
+							<element name="AC_ActionCode" type="element"/>
+							<element name="A_Key" type="element"/>
+							<element name="authAct" type="element"/>
+							<element name="authFailOverride" type="element"/>
+							<element name="authAutoSSD_Upd" type="element"/>
+						</G2MessageComponent>
+
+						<G2MessageComponent name="ASMS_Part" type="struct">
+							<element name="ASMS_ActionCode" type="element"/> 
+							<G2MessageComponent name="ASMS_MetaData" type="array" size="7">
+								<element name="SUBID" type="array_element"/>
+								<element name="NATLACCTID" type="array_element"/>
+								<element name="WINSERVICENAME" type="array_element"/>
+								<element name="PHONENUMBER" type="array_element"/>
+								<element name="NEWSUBID" type="array_element"/>
+								<element name="OLDMIN" type="array_element"/>
+								<element name="DIALPLANNAME" type="array_element"/>
+							</G2MessageComponent>
+						</G2MessageComponent>
+
+						<G2MessageComponent name="AN_Part" type="struct">
+							<element name="AN_ActionCode" type="element"/>
+			                    		<element name="AN_Product" type="element"/>
+						</G2MessageComponent>
+
+						<G2MessageComponent name="AAA_Part" type="struct">
+							<element name="AAA_ActionCode" type="element"/>
+                   					<element name="NAI" type="element"/>
+                    					<element name="newNAI" type="element"/>
+				                        <element name="BAN" type="element"/>
+			                    	       	<element name="password" type="element"/>
+			                    	       	<element name="serviceProfileName" type="element"/>
+			                    	       	<element name="hotlineOnOffInd" type="element"/>
+			                    	       	<element name="certID" type="element"/>
+			                    	       	<element name="hotlineReason" type="element"/>
+			                    	       	<element name="NAID" type="element"/>
+			                    	       	<element name="deviceManufacturer" type="element"/>
+			                    	       	<element name="deviceModel" type="element"/>
+			                    	       	<element name="A_Key" type="element"/>
+			                    	       	<element name="subsidyLock" type="element"/>
+							<G2MessageComponent name="AAA_MetaData" type="array" size="1">
+			                    			<element name="pushToTalk" type="array_element"/>
+							</G2MessageComponent>
+						</G2MessageComponent>
+
+						<G2MessageComponent name="VCS_VoiceDialPart" type="struct">
+			                       		<element name="VCS_VoiceDialActionCode" type="element"/>
+			                       		<element name="effectiveDate" type="element"/>
+			                       		<element name="HSA_OrgInd" type="element"/>
+			                       		<element name="oldSubscriptionId" type="element"/>
+						</G2MessageComponent>
+          				 	<G2MessageComponent name="DataSvcsBasicPart" type="struct">
+                    					<element name="dataSvcsBasicActionCode" type="element"/>
+                    					<element name="deviceManufacturer" type="element"/>
+                  					 <element name="deviceModel" type="element"/>
+                   					 <element name="downloadCapableInd" type="element"/>
+						</G2MessageComponent>   
+            					<G2MessageComponent name="DataSvcsEnhancedPart" type="struct">
+                   					 <element name="dataSvcsEnhancedActionCode" type="element"/>
+            					</G2MessageComponent>
+					</G2MessageComponent>
+				</G2MessageDescription>
+				<G2MessageDescription name="text" type="msg">
+					<G2MessageComponent name="EHeader" type="struct">
+						<element name="actionCode" type="element"/>
+						<element name="mobileIdNum" type="element"/>
+						<element name="workItemId" type="element"/>
+						<element name="originatingSystem" type="element"/>
+						<element name="DN" type="element"/>
+					</G2MessageComponent>
+					<G2MessageComponent name="EProvisioningRecord" type="struct">
+						<G2MessageComponent name="ShortMessageTextPart" type="struct">
+							<element name="SM_MessageActionCode" type="element"/>
+							<element name="messageText" type="element"/>
+						</G2MessageComponent>
+					</G2MessageComponent>
+				</G2MessageDescription>
+				<G2MessageDescription name="actiview_reply" type="msg">
+					<G2MessageComponent name="ACTIVIEW_Reply" type="struct">
+						<element name="returnCode" type="element"/>
+						<element name="workItemId" type="element"/>
+						<element name="mobileIdNum" type="element"/>
+						<element name="sessionId" type="element"/>
+						<element name="PRL_Name" type="element"/>
+						<element name="DN" type="element"/>
+						<element name="NAI" type="element"/>
+						<element name="errorMsg" type="element"/>
+					</G2MessageComponent>
+				</G2MessageDescription>
+			</G2Definitions>
+		</aspen:binding>
+
+        <operation name="doProvisioning">
+            <soap:operation soapAction="http://soapinterop.org/" style="rpc"/>
+
+            <input name="doProvisioning">
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" 
+                    namespace="http://soapinterop.org/" use="encoded"/>
+            </input>
+
+            <output name="Response">
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" 
+                    namespace="http://soapinterop.org/" use="encoded"/>
+            </output>
+        </operation>
+
+        <operation name="doText">
+            <soap:operation soapAction="http://soapinterop.org/" style="rpc"/>
+
+            <input name="doText">
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" 
+                    namespace="http://soapinterop.org/" use="encoded"/>
+            </input>
+
+            <output name="Response">
+                <soap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" 
+                    namespace="http://soapinterop.org/" use="encoded"/>
+            </output>
+        </operation>
+
+    </binding>
+
+    <service name="ProvisioningService">
+        <port binding="tns:ProvisioningBinding" name="ProvisioningPort">
+            <soap:address 
+                location="http://aspentest.iona.com/Sprint/Provisioning"/>
+        </port>
+    </service>
+</definitions>

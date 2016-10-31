@@ -1,0 +1,64 @@
+//
+//	Copyright (c) 2002 IONA Technologies PLC. All Rights Reserved.
+//
+
+#ifndef _DBPOOL_H_
+#define _DBPOOL_H_
+
+#include <iostream>
+#include <queue>
+#include <hash_set>
+#include <map>
+#include <string>
+#include "DBConnectionPtr.h"
+#include "DBException.h"
+#include "Mutex.h"
+
+using namespace std;
+
+typedef queue<DBConnection*> DBConnectionQueue;
+typedef hash_set<long> InUseConnections;
+typedef map<string, DBConnectionQueue, less< string > > DBConnectionsMap;
+typedef map<string, InUseConnections, less< string > > DBConnectionsInUseMap;
+
+//*******************************************************************
+// Manages a pool of database connections (configurable). It works
+// by allowing people to check-out a connection for use and when
+// done check the connection back in (handled through smart-pointers)
+// A set of active connections is maintained within this class to allow
+// for the fast hand-out of connections.
+class DBPool 
+{
+  public :
+    static DBPool& getInstance(const string& poolName = "default");
+
+     ~DBPool();
+ 
+	 DBConnectionPtr getConnection() throw (DBException);
+     void releaseConnection(DBConnectionPtr& connection);
+
+     size_t getAvailableConnections();
+     size_t getInUseConnections();
+     string getPoolName();
+
+protected:
+    void initializePool();
+    void cleanupPool();
+
+    void createConnections(long numConnections);
+    DBConnectionPtr getConnectionFromPool() throw (DBException);
+private:
+    // constructor as private so only access is through static getInstance
+    DBPool();
+
+     static DBPool* s_instance;
+
+     DBConnectionsMap availablePools;
+     DBConnectionsInUseMap inUsePools;
+    
+     Mutex connectionMutex;
+     Mutex inUsePoolMutex;
+};
+
+#endif
+

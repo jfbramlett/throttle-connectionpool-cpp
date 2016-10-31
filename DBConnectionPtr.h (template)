@@ -1,0 +1,114 @@
+#ifndef __DBCONNECTIONPTR_H__
+#define __DBCONNECTIONPTR_H__
+
+#include "DebugUtil.h"
+#include "DBConnection.h"
+
+//*******************************************************************
+// Structure used as the underlying storage within the smart pointer 
+// defined below. By using a structure like this it allows us to share
+// this information across objects in order to maintain the reference 
+// count
+typedef struct REFERENCE
+{
+	void* ptr;
+	short count;
+} Reference;
+
+
+//*******************************************************************
+// Smart pointer wrapper around a database connection. This uses
+// reference counting to know when the connection can be released back
+// to the connection pool. The user should never create an instance of this
+// object but will be provided one from the pool. This class will manage
+// the lifecycle of the underlying connection automatically. Since it is 
+// reference counted it can be passed around, assigned, etc.. and once
+// everyone is done the underlying connection will be released by to the pool
+// automatically
+template<class C> 
+    class DBConnectionPtr
+{
+public:
+    // default constructor
+    DBConnectionPtr() : m_reference(NULL) {};
+    
+    // constructor
+    DBConnectionPtr(C* ptr) { 
+        m_reference = new Reference();
+        m_reference->ptr = ptr;
+        m_reference->count = 1;
+    };
+
+    // copy constructor
+    DBConnectionPtr(DBConnectionPtr& ptr) {
+        release();
+        m_reference = ptr.m_reference;
+        m_reference->count = m_reference->count + 1;
+    };
+
+    // Destructor
+	~DBConnectionPtr() {
+        release();
+    }
+
+    // overloaded assignment operators
+    DBConnectionPtr& operator=(DBConnectionPtr& ref) {
+        release();
+        m_reference = ref.m_reference;
+        m_reference->count = m_reference->count + 1;
+
+        return *this;
+    };
+
+    DBConnectionPtr& operator=(C* ptr) {
+        release();
+        m_reference = new Reference();
+        m_reference->ptr = ptr;
+        m_reference->count = 1;
+
+        return *this;
+    };
+
+    // overload ->
+    C* operator->() {
+        return getConnection();
+    };
+
+    // overload the cast operator
+    operator C*() {
+        return getConnection();
+    };
+
+    // return our connection
+    C* getConnection() {
+        if (m_reference != NULL)
+        {
+            return (C*)m_reference->ptr;
+        }
+
+        return NULL;
+    };
+
+protected:
+    void release() {
+        if (m_reference != NULL)
+        {
+            m_reference->count = m_reference->count - 1;
+            if (m_reference->count == 0)
+            {
+                Debugger::debugger << "Reference count is 0 - releasing connection" << "\n";
+                DBPool::getInstance().releaseConnection(*this);
+                delete m_reference;
+            }
+            else 
+            {
+                Debugger::debugger << "Just decrementing reference count" << "\n";
+            }
+        }
+    };
+
+    Reference* m_reference;
+};
+
+#endif
+

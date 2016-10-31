@@ -1,0 +1,325 @@
+#include "DBPool.h"
+#include "DBPoolConfiguration.h"
+#include "DebugUtil.h"
+#include "DBConnectionFactory.h"
+#include <time.h>
+
+// initialize our singleton instance
+DBPool* DBPool::s_instance = NULL;
+
+//-------------------------------------------------------------------
+// Singleton accessor method - this insures we have an automatic way
+// to initialize the class (it will be initialized when this method is 
+// first called
+DBPool& DBPool::getInstance()
+{
+    // we are lazily creating the pool so if we haven't created our DB Pool
+    // create it
+    if (s_instance == NULL)
+    {
+        s_instance = new DBPool();
+    }
+
+    return *s_instance;
+}
+
+//-------------------------------------------------------------------
+// Constructor - initializes our pool based on configuration information
+//
+DBPool::DBPool()
+{
+    initializePool();
+}
+
+//-------------------------------------------------------------------
+// Destructor
+DBPool::~DBPool() 
+{
+    cleanupPool();
+}
+
+//-------------------------------------------------------------------
+// Initialize our pool of database connections
+void DBPool::initializePool(void)
+{
+    // get our list of pools
+    vector<string> pools = DBPoolConfiguration::getConfiguration().getPools();
+
+    // now iterator our list of pools and initialize each pool
+    
+    for (vector<string>::iterator it = pools.begin(); it != pools.end(); it++)
+    {
+        // setup our collections
+        availablePools[*it] = new DBConnectionQueue();
+        inUsePools[*it] = new InUseConnections();
+        initializePool(*it);
+    }
+}
+
+//-------------------------------------------------------------------
+// Initialize a specific pool within the db pool
+void DBPool::initializePool(const string&  poolName)
+{
+    // our initial pool size is based on configuration
+    long initialPoolSize = DBPoolConfiguration::getConfiguration().getInitialPoolSize(poolName);
+
+    Debugger::debugger << "Initializing connection pool " + poolName + " with " << initialPoolSize << " connections" << "\n";
+
+    // now create our connections for our initial pool
+    createConnections(initialPoolSize, poolName);
+}
+
+//-------------------------------------------------------------------
+// Releases all connections in the pool
+void DBPool::cleanupPool(void)
+{
+    
+}
+
+//-------------------------------------------------------------------
+// Gets a new connection from the pool - the optional parameter of
+// 'key' is not currently support but the idea behind this parameter
+// is the ability to support multiple named pools each with a different
+// configuration
+DBConnectionPtr DBPool::getConnection(const string&  poolName) throw (DBException)
+{
+    // we need to insure serialized access to this method so we don't run
+    // in to timer problems where multiple people are accessing the connection
+    // list or this logic simultaneously. So I am using a home-grown mutex to do
+    // this. I thought STL has one built-in but I could not find it so I ended 
+    // up building my own
+    MutexHandler mutexHandler(connectionMutex);
+
+    DBConnectionQueue*& pool = availablePools[poolName];
+
+    // make sure we have an available connection
+    if (pool->empty())
+    {
+        Debugger::debugger << "Pool is empty...trying to add additional connections" << "\n";
+
+        // our pool is empty so try and increase the size of the pool
+        createConnections(DBPoolConfiguration::getConfiguration().getPoolIncrement(poolName));
+
+        // if our pool is still empty we may block ourselves in a loop until
+        // we can get a connection
+        if (pool->empty())
+        {
+            Debugger::debugger << "Unable to add additional connections to pool " << poolName << "\n";
+
+            // if we are waiting for connections then block until we have a connection
+            // or we time out
+            if (DBPoolConfiguration::getConfiguration().waitForConnection(poolName))
+            {
+                Debugger::debugger << "Waiting for a connection to become available in pool " << poolName << "...." << "\n";
+
+                // see what our wait state is
+                long wait = DBPoolConfiguration::getConfiguration().getConnectionWaitPeriod(poolName);
+                time_t startTime;
+                
+                // get our start time so we will know when we time out
+                time(&startTime);
+
+                // start a timer, we will keep trying to get a connection until we time-out or
+                // or a connection is obtained. This looks like an infinite loop but isn't
+                // there are a number of break-out conditions. It is written this way because
+                // it seemed the clearest way to implement (I thought about a 'do..while' but
+                // the break-out conditions did not seem as clear in that case)
+                while (1)
+                {
+                    // see if our pool is still empty
+                    if (pool->empty())
+                    {
+                        // if our wait period is not infinite we need to see if we have waited
+                        // long enough (in which case we will error out)
+                        if (wait != DBPoolConfiguration::CONNECTION_WAIT_PERIOD_INFINITE)
+                        {
+                            time_t currentTime;
+                            time(&currentTime);
+                            if (difftime(currentTime, startTime) > wait)
+                            {
+                                Debugger::debugger << "Timed out waiting for a connection to become available in pool " << poolName << "\n";
+
+                                // oh, to bad - we have waited long enough for a connection
+                                // so throw the user out with an error
+                                throw DBException("Failed to obtain a connection from the pool");
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // the pool isn't empty so we can get a connection
+                        return getConnectionFromPool();
+                    }
+                }
+            }
+            else 
+            {
+                Debugger::debugger << "No connection available in pool " << poolName << "!" << "\n";
+
+                // we are not waiting for a connection so immediately error out
+                throw DBException("Failed to obtain a connection from pool " + poolName);
+            }
+            
+        }
+        else 
+        {
+            // we successfully increased the size of the pool so just pop a connection
+            // from it
+            return getConnectionFromPool();
+        }
+    }
+    else
+    {
+        return getConnectionFromPool();
+    }
+}
+
+//-------------------------------------------------------------------
+// Releases a connection back to the pool
+void DBPool::releaseConnection(DBConnectionPtr& connection) throw (DBException)
+{
+    string poolName = connection.getAssociatedPool();
+
+    Debugger::debugger << "Releasing a connection back to pool " << poolName << "\n";
+
+    // we need to use our mutex for the inUsePool to insure thread-safety (so our
+    // iterators don't get screwed up when multiple try to access the list
+    MutexHandler inUsePoolMutexHandler(this->inUsePoolMutex);
+
+    // find this connection in our in-use pool
+    DBConnectionQueue*& pool = availablePools[poolName];
+    InUseConnections*& inUse = inUsePools[poolName];    
+
+    InUseConnections::iterator iterator = inUse->find((long)connection.getConnection());
+    
+    // if we found our element then erase it 
+    if (iterator != inUse->end())
+    {
+        inUse->erase(iterator);
+        
+        // now put this connection back in to our available pool
+
+        // first, make sure this is a valid connection
+        if (connection->invalidConnection())
+        {
+            // this is an invalid connection so just drop it (we do this by deleting our
+            // pointer to the connection
+            DBConnectionFactory::getInstance().releaseConnection((DBConnection*)connection);
+        }
+        else 
+        {
+            // ok, our connection has not been flagged by the caller as being invalid
+            // so add it back to our pool
+            pool->push(connection.getConnection());
+        }
+    }
+    else 
+    {
+        throw DBException("Failed to find connection in pool - something is very wrong");
+    }
+
+}
+
+//-------------------------------------------------------------------
+// Add connections to our connection pool - this can be used to seed
+// our pool or to add additional connections up to our max size
+void DBPool::createConnections(long numConnections, const string&  poolName)
+{
+    Debugger::debugger << "Creating " << numConnections << " connections in pool " << poolName << "\n";
+
+    unsigned long maxPoolSize = DBPoolConfiguration::getConfiguration().getMaxPoolSize(poolName);
+
+    // get a reference to our available pool and our
+    DBConnectionQueue*& pool = availablePools[poolName];
+    InUseConnections*& inUse = inUsePools[poolName];
+
+    // add a number of connections in to our pool
+    for (int i = 0; i < numConnections; i++)
+    {
+        // make sure we have not reached out limit - if we haven't then add
+        // the new connection
+        if ((pool->size() + inUse->size()) < maxPoolSize)    
+        {
+            // create a new connection and add it to our queueu
+            DBConnection* connection = DBConnectionFactory::getInstance().createConnection(DBPoolConfiguration::getConfiguration().getConnectionType(poolName));
+            pool->push(connection);
+        }
+        else 
+        {
+            // we are at our max so we cannot add any more connections
+            Debugger::debugger << "Connection cannot be created, maximum pool size has been reached for pool " << poolName << "\n";
+            break;
+        }
+    }
+}
+
+//-------------------------------------------------------------------
+// Common routine for popping a connection off of the available connection
+// pool. It assumes all of the work around insuring there is a connection
+// has already been done
+DBConnectionPtr DBPool::getConnectionFromPool(const string&  poolName) throw (DBException)
+{
+    Debugger::debugger << "Getting a connection from pool " << poolName << "..." << "\n";
+
+    // first get our connections queue and our in use queue
+    DBConnectionQueue*& pool = availablePools[poolName];
+    InUseConnections*& inUse = inUsePools[poolName];
+
+    // take a connection from the available pool and push it on to the in use
+    DBConnection* connection = (DBConnection*) pool->front();
+    pool->pop();
+
+    // now make sure this is valid connection (if we are checking that)
+    if (DBPoolConfiguration::getConfiguration().validateConnectionBeforeReturning(poolName))
+    {
+        // if our connection isn't valid then delete the reference
+        if (!connection->testConnection())
+        {
+            // try another one until we find a valid connection or until we have exhausted
+            // the pool
+            do 
+            {
+                // we have an invalid connection so first delete it
+                delete connection;
+
+                // if our pool is empty then we have no valid connections so just error
+                // out
+                if (pool->empty())
+                {
+                    throw DBException("All connections in the pool are invalid!");
+                }
+                else
+                {
+                    // our pool isn't empty so try to get another connection
+                    connection = (DBConnection*) pool->front();
+                }
+            } while (!connection->testConnection());
+        }
+    }
+
+    // flag this connection has being "in-use" - only do this for the valid connection we find
+    // wrap this in {} so we can use our mutex to insure thread-safety around the use of this
+    // list
+    {
+        MutexHandler inUseMutexHandler(inUsePoolMutex);
+        inUse->insert((long)connection);
+    }
+
+    // return this connection back to the user
+    return DBConnectionPtr(connection, poolName);
+}
+
+//-------------------------------------------------------------------
+// A debug routine for querying how many connections are availabe in the
+// current pool
+size_t DBPool::getAvailableConnections(const string&  poolName)
+{
+    return availablePools[poolName]->size();
+}
+
+//-------------------------------------------------------------------
+// Debug routine for querying how many connections are currently in use
+size_t DBPool::getInUseConnections(const string&  poolName)
+{
+    return inUsePools[poolName]->size();
+}

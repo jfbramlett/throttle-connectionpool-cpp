@@ -1,0 +1,59 @@
+
+#	Copyright (c) 2000 IONA Technologies PLC. All Rights Reserved.
+
+TARGET=				server
+
+ASPEN_DIR=			../../..
+IDL_DIR=			../idl
+
+SRCS=			server.CCsuf  \
+				ProvisioningServer.CCsuf \
+				ProvisioningServerS.CCsuf \
+				ProvisioningServerServiceTypes.CCsuf
+
+IDL_TAG1=			aspen
+IDL_TAG1_INCS=			$(IDL_TAG1).hh  \
+				$(IDL_TAG1)S.hh
+IDL_TAG1_SRCS=			$(IDL_TAG1)C.CCsuf  \
+				$(IDL_TAG1)S.CCsuf
+IDL_TAG1_FLAGS=			-base -poa:-xTIE
+IDL_TARGETS1=			$(IDL_TAG1_INCS) $(IDL_TAG1_SRCS)
+
+IDL_SRCS=			$(IDL_TAG2_SRCS)
+
+DEPEND_ON=			$(SERVER_DEPEND_ON)
+LINK_WITH=			$(DEMO_SERVER_LINK_WITH) $(LINK_WITH_ASPEN) \
+ 				$(LINK_WITH_IT_TUXEDO) $(LINK_WITH_TUXEDO)
+
+
+
+OBJS=				$(SRCS:.CCsuf=.Osuf) $(IDL_SRCS:.CCsuf=.Osuf)
+
+CXXLOCAL_DEFINES=	        -DIT_ASPEN_EXCLUDE_SSL $(ASPEN_PLATFORM_SPECIFIC)
+
+INCLUDES=			$(XERCES_INCLUDES) 
+
+
+LIB_PATH= $(DEFAULT_LIB_PATH)
+
+
+
+EXTRA_LIBRARIES=		$(LINK_WITH_XERCES)
+
+
+DEMOS=				$(INCS) $(SRCS)
+DEMO_SRCS=			$(SRCS) $(IDL_SRCS)
+
+IBE_DEPENDS=			$(DEPEND_ON_CXX_IBE)  \
+				$(DEPEND_ON_POA_CXX_IBE)
+
+DlFileFromOtherDir($(IDL_TAG1_INCS) $(IDL_TAG1_SRCS),$(IDL_DIR),$(IDL_TAG1),idl, $(IDL_TAG1_FLAGS), $(IBE_DEPENDS))
+
+BuildCxxProgram($(TARGET), $(OBJS), $(DEPEND_ON), $(LINK_WITH))
+NormalCplusplusObjectRule()
+
+# MsubMakefileTarget(makefile.samp,$(DEMO_MAKEFILE_SOURCE))
+
+# StagePerPlatform(makefile.samp,$(STAGE_DEMOS_DIR)/orb/simple/cxx_server/makefile)
+
+
